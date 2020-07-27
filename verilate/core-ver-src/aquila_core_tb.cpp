@@ -7,6 +7,8 @@
 #include <map>
 #include <cstdint>
 
+#include "decode2.cpp"
+
 #include "verilated_vcd_c.h"
 #include "Vaquila_testharness.h"
 #include "Vaquila_testharness__Syms.h"
@@ -34,7 +36,6 @@ static void usage(const char * program_name)
   cout << "Usage: " << program_name << " [RISCV_TEST_ELF] [RVTEST(0/1),default 0]" <<endl;
 }
 
-
 int main(int argc, char **argv)
 {
   Verilated::commandArgs(argc,argv);
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
   }
 
   fstream log_file("cpu.log",fstream::out);
+  fstream log_file2("cpu2.log",fstream::out);
 
   if (!log_file.is_open()) {
     cerr << "Failed to open cpu.log file!!!" << endl;
@@ -103,6 +105,12 @@ int main(int argc, char **argv)
 
   uint32_t tohost_val;
 
+  int prev_stall = 1;
+  vluint64_t time[9][9];
+  string instruction[9];
+  unsigned int instr_addr[9];
+  long long int count = 0;
+
   for (int i = 0 ; i < MAX_SIM_CYCLE ; i ++){
     top->clk = 0;
     top->eval ();
@@ -110,8 +118,54 @@ int main(int argc, char **argv)
 #ifdef TRACE
     Vcdfp->dump(cpuTime);
 #endif
-    log_file << "#" << setfill('0') << setw(10) << right << i <<
-      ":" << setfill('0') << setw(8) << right << hex << top->cur_instr_addr << endl;
+
+    if(prev_stall == 0){
+      unsigned int instr = top->aquila_testharness->__PVT__aquila_core__DOT__RISCV_CORE0__DOT__fet_instr2dec;
+      log_file << "#" << setfill('0') << setw(10) << right << cpuTime <<
+        ":" << setfill('0') << setw(8) << right << hex << top->cur_instr_addr <<
+        "::" << (int)top->aquila_testharness->aquila_core__DOT__RISCV_CORE0__DOT____Vcellinp__Fetch__stall <<
+        "::" << setfill('0') << setw(8) << right <<instr << "::";
+      log_file << dec;
+      char *tem = int_to_str(instr);
+      tem[32] = 0; 
+      /*for(int i = 0; i < 32; i++)
+        log_file << tem[i];*/
+      riscv_decode(tem, &log_file);
+      log_file << endl;
+
+      //shift
+      count++;
+      if(count > 7){
+        log_file2 << "O3PipeView:fetch:" << time[7][0] << ":0x" << setfill('0') << setw(8) << instr_addr[7] << ":0:" << count - 7 << ":" << instruction[7] << endl;;
+        log_file2 << "O3PipeView:decode:" << time[7][1] << endl;
+        log_file2 << "O3PipeView:rename:" << time[7][2] << endl;
+        log_file2 << "O3PipeView:dispatch:" << time[7][3] << endl;
+        log_file2 << "O3PipeView:issue:" << time[7][4] << endl;
+        log_file2 << "O3PipeView:complete:" << time[7][5] << endl;
+        log_file2 << "O3PipeView:retire:" << time[7][6] << ":store:" << time[7][7] << endl;
+      }
+      for(int k = 7; k > 0; k--)
+        for(int j = 0; j < 8; j++)
+          time[k][j] = time[k-1][j];
+      for(int k = 0; k < 8; k++)
+        time[k][k] = cpuTime;
+      for(int k = 7; k > 0; k--){
+        instr_addr[k] = instr_addr[k-1];
+        instruction[k] = instruction[k-1];
+      }
+      instr_addr[0] = top->cur_instr_addr;
+      instruction[0] = tem;
+
+      //
+    }
+
+    
+
+    prev_stall = (int)top->aquila_testharness->aquila_core__DOT__RISCV_CORE0__DOT____Vcellinp__Fetch__stall;
+
+
+//printf("%ld:%08x\n",cpuTime,top->aquila_testharness->__PVT__aquila_core__DOT__RISCV_CORE0__DOT__fet_instr2dec);
+    
     top->clk = 1;
     top->eval ();
     cpuTime += 5;
