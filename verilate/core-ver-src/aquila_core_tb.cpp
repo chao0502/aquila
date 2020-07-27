@@ -133,7 +133,7 @@ int main(int argc, char **argv)
       riscv_decode(tem, &log_file);
       log_file << endl;
 
-      //shift///
+      //shift
       count++;
       if(count > 7){
         log_file2 << "O3PipeView:fetch:" << time[7][0] << ":0x" << setfill('0') << setw(8) << instr_addr[7] << ":0:" << count - 7 << ":" << instruction[7] << endl;;
