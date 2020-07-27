@@ -106,7 +106,7 @@ int main(int argc, char **argv)
   uint32_t tohost_val;
 
   int prev_stall = 1;
-  vluint64_t time[9][9];
+  vluint64_t time[9][8];
   string instruction[9];
   unsigned int instr_addr[9];
   long long int count = 0;
@@ -135,8 +135,8 @@ int main(int argc, char **argv)
 
       //shift
       count++;
-      if(count > 7){
-        log_file2 << "O3PipeView:fetch:" << time[7][0] << ":0x" << setfill('0') << setw(8) << instr_addr[7] << ":0:" << count - 7 << ":" << instruction[7] << endl;;
+      if(count > 8){
+        log_file2 << "O3PipeView:fetch:" << time[7][0] << ":0x" << setfill('0') << setw(8) << hex << instr_addr[7] << dec << ":0:" << count - 7 << ":" << instruction[7] << endl;;
         log_file2 << "O3PipeView:decode:" << time[7][1] << endl;
         log_file2 << "O3PipeView:rename:" << time[7][2] << endl;
         log_file2 << "O3PipeView:dispatch:" << time[7][3] << endl;
@@ -144,12 +144,12 @@ int main(int argc, char **argv)
         log_file2 << "O3PipeView:complete:" << time[7][5] << endl;
         log_file2 << "O3PipeView:retire:" << time[7][6] << ":store:" << time[7][7] << endl;
       }
-      for(int k = 7; k > 0; k--)
+      for(int k = 8; k > 0; k--)
         for(int j = 0; j < 8; j++)
           time[k][j] = time[k-1][j];
       for(int k = 0; k < 8; k++)
         time[k][k] = cpuTime;
-      for(int k = 7; k > 0; k--){
+      for(int k = 8; k > 0; k--){
         instr_addr[k] = instr_addr[k-1];
         instruction[k] = instruction[k-1];
       }
