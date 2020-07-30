@@ -118,7 +118,9 @@ int main(int argc, char **argv)
 #ifdef TRACE
     Vcdfp->dump(cpuTime);
 #endif
-
+//__PVT__aquila_core__DOT__RISCV_CORE0__DOT__JAL_BHT__DOT__we 看jump
+//aquila_core__DOT__RISCV_CORE0__DOT____Vcellinp__Fetch__flush 決定 Fetch flush
+//__PVT__aquila_core__DOT__RISCV_CORE0__DOT__exe_branch_taken
     if(prev_stall == 0){
       unsigned int instr = top->aquila_testharness->__PVT__aquila_core__DOT__RISCV_CORE0__DOT__fet_instr2dec;
       log_file << "#" << setfill('0') << setw(10) << right << cpuTime <<
