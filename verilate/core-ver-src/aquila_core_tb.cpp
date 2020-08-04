@@ -121,8 +121,12 @@ int main(int argc, char **argv)
 //__PVT__aquila_core__DOT__RISCV_CORE0__DOT__JAL_BHT__DOT__we 看jump
 //aquila_core__DOT__RISCV_CORE0__DOT____Vcellinp__Fetch__flush 決定 Fetch flush
 //__PVT__aquila_core__DOT__RISCV_CORE0__DOT__exe_branch_taken
+    prev_stall = (int)top->aquila_testharness->aquila_core__DOT__RISCV_CORE0__DOT____Vcellinp__Fetch__stall;
     if(prev_stall == 0){
-      unsigned int instr = top->aquila_testharness->__PVT__aquila_core__DOT__RISCV_CORE0__DOT__fet_instr2dec;
+
+      int fet_flush = (int) top->aquila_testharness->aquila_core__DOT__RISCV_CORE0__DOT____Vcellinp__Fetch__flush;
+      //unsigned int instr = top->aquila_testharness->__PVT__aquila_core__DOT__RISCV_CORE0__DOT__fet_instr2dec;
+      unsigned int instr = top->aquila_testharness->aquila_core__DOT____Vtogcov__p_i_instr;
       log_file << "#" << setfill('0') << setw(10) << right << cpuTime <<
         ":" << setfill('0') << setw(8) << right << hex << top->cur_instr_addr <<
         "::" << (int)top->aquila_testharness->aquila_core__DOT__RISCV_CORE0__DOT____Vcellinp__Fetch__stall <<
@@ -158,13 +162,16 @@ int main(int argc, char **argv)
       instr_addr[0] = top->cur_instr_addr;
       instruction[0] = tem;
 
+      if(fet_flush){
+        instr_addr[0] = 0;
+        instruction[0] = int_to_str(19);
+        for(int k = 0; k < 2; k++){
+          for(int j = 0; j < 8; j++)
+            time[k][j] = 0;
+        }
+      }
       //
     }
-
-    
-
-    prev_stall = (int)top->aquila_testharness->aquila_core__DOT__RISCV_CORE0__DOT____Vcellinp__Fetch__stall;
-
 
 //printf("%ld:%08x\n",cpuTime,top->aquila_testharness->__PVT__aquila_core__DOT__RISCV_CORE0__DOT__fet_instr2dec);
     

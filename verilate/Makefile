@@ -1,4 +1,3 @@
-
 SHELL := /bin/bash
 #ifeq ($(VERILATOR_ROOT),)
 VERILATOR ?= verilator
@@ -12,8 +11,7 @@ CUR_DIR=$(shell pwd)
 
 CPPFLAGS = -std=c++11 -I$(VDIR) `pkg-config --cflags verilator`
 
-AQUILA_CORE_SRC=../ip_repo/aquila/hdl/core_rtl/*.v \
-								../ip_repo/aquila/hdl/aquila.v
+AQUILA_CORE_SRC=../ip_repo/aquila/hdl/core_rtl/*.v
 
 CORE_VER_SRC=./core-ver-src/*v \
 						 ./core-ver-src/*.sv
@@ -40,7 +38,7 @@ core_versyn:
 .PHONY: core_verilate
 core_verilate:
 	$(VERILATOR) $(verilator_flag) $(AQUILA_CORE_SRC) $(CORE_VER_SRC) \
-	-Wno-lint -Wno-style -Wno-fatal \
+	-Wno-lint -Wno-style -Wno-fatal --coverage --timescale-override 1ns/1ps \
 	-Mdir core_obj_dir \
 	-CFLAGS $(CPPFLAGS) \
 	-LDFLAGS "-lpthread" \
