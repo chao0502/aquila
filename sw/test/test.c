@@ -138,7 +138,7 @@ void malloc_test(int nwords)
     printf("\n...\n");
     for (idx = 10; idx > 0; idx--)
     {
-        printf("Addr 0x%X, buf[%d] = %d\n",(unsigned) &(buf[idx]), nwords-idx, buf[nwords-idx]);
+        printf("Addr 0x%X, buf[%d] = %d\n",(unsigned) &(buf[nwords-idx]), nwords-idx, buf[nwords-idx]);
     }
     free(buf);
     printf("Buffer freed.\n");
