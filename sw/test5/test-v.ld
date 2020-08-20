@@ -58,26 +58,27 @@
 must start from 0x80000000 due to aquila hard code /
 */
 
-__heap_start = 0xB0000000;
-__heap_size  = 0x02000000;
-__stack_top  = 0xB4500000;
-__stack_size = 0x00010000;
+__heap_start = 0x80220000;
+__heap_size  = 0x00001000;
+__stack_top  = 0x80230000;
+__stack_size = 0x00001000;
 __stack_start = __stack_top - __stack_size;
 
 MEMORY
 {
     code_ram   (rx!rw) : ORIGIN = 0x80000000, LENGTH = 0x00008000
-    data_ram   (rw!x)  : ORIGIN = 0x8000A000, LENGTH = 0x02100000
+    data_ram   (rw!x)  : ORIGIN = 0x8000A000, LENGTH = 0x00210000
     heap_ram   (rw!x)  : ORIGIN = __heap_start, LENGTH = __heap_size
     stack_ram  (rw!x)  : ORIGIN = __stack_start, LENGTH = __stack_size
     IO       (rw!x)  : ORIGIN = 0xC0000000, LENGTH = 0x00000010
     TIMER    (rw!x)  : ORIGIN = 0xF0000000, LENGTH = 0x00000020
 }
+
 SECTIONS
 {
     .text :
     {
-        boot-p.o(.text)
+        boot-v.o(.text)
         *(.text)
 
     } > code_ram
@@ -86,7 +87,26 @@ SECTIONS
     {
         *(.data)
         *(.bss)
-	*(.rodata*)
+        *(.rodata*)
 
     } > data_ram
+
+    .heap :
+    {
+        . = ALIGN(4);
+        PROVIDE ( end = . );
+        _sheap = .;
+        . = . + __heap_size;
+        . = ALIGN(4);
+        _eheap = .;
+    } > heap_ram
+
+    .stack :
+    {
+        . = ALIGN(4);
+        _estack = .;
+        . = . + __stack_size;
+        . = ALIGN(4);
+        _sstack = .;
+    } > stack_ram
 }

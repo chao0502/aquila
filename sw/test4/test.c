@@ -56,9 +56,10 @@
 //#include "javahelloSeq.h"
 #include "pythonHelloSeq.h"
 //#include "sequence_file\xsdkSeq.h"
-
-#define XPAR_MEM_ALLOC_CTRL_IP_0_S00_AXI_BASEADDR 0x80220000
-#define memory_size 0x00001000
+//#define XPAR_MEM_ALLOC_CTRL_IP_0_S00_AXI_BASEADDR 0x43C0000
+#define XPAR_MEM_ALLOC_CTRL_IP_0_S00_AXI_BASEADDR 0xC1000000
+//#define memory_size 0x00010000
+#define memory_size 0x2000000
 
 volatile int *allocate_request     = (int *) (XPAR_MEM_ALLOC_CTRL_IP_0_S00_AXI_BASEADDR +  0); /*1:allocate, 2:reallocate*/
 volatile int *allocate_size        = (int *) (XPAR_MEM_ALLOC_CTRL_IP_0_S00_AXI_BASEADDR +  4);
@@ -74,25 +75,32 @@ volatile int *allocate_counter     = (int *) (XPAR_MEM_ALLOC_CTRL_IP_0_S00_AXI_B
 
 int HW_allocate(int size){
   *allocate_size = size;
+  // printf("5.1:%d\n",*allocate_finish);
   *allocate_finish = 0;
+  // printf("5.2:%d\n",*allocate_finish);
   *allocate_request = 1;
+  // printf("5.3:%d\n",*allocate_finish);
   while(*allocate_finish == 0){}
-
+  // printf("5.4:%d\n",*allocate_finish);
   if(*allocate_finish == 4){
 	  printf("allocate fail!!\n");
 	  return -1;
   }
   *allocate_finish = 0;
+ // printf("5.5:%x\n",*allocate_address);
   return *allocate_address;
 
 }
 
 void HW_free(int addr){
+	//printf("8\n");
     *free_address = addr;
     *free_finish = 0;
     *free_request = 1;
+	//printf("9\n");
     while(*free_finish != 1){}
-    *free_finish = 0;
+	//printf("10\n");
+	*free_finish = 0;
 }
 
 
@@ -118,19 +126,35 @@ int HW_realloc(int addr, int size){
 
 int main( int argc, char *argv[] )
 {
+	printf("1\n");
 	int i;
 	unsigned char ptr[memory_size];//32MB
+	printf("2\n");
 	memset(ptr,memory_size,0);
-
-	*heap_start_address= &ptr[0];
+	printf("3\n");
+	*heap_start_address = &ptr[0];
+	printf("4\n");
 	for(i=0;i<seq_num;i++)
 	{
-		if(mem_ops[i]==1)
+		//if(i % 100 == 0 && i > 0)
+			//printf("loop\n");
+		if(mem_ops[i]==1){
 			allocate_array[alloc_idx[i]]=HW_allocate(alloc_size[i]);
+			//printf("%d:%x\n",i,allocate_array[alloc_idx[i]]);
+		}
 		else
 			HW_free(allocate_array[alloc_idx[i]]);
 		dummy_loop();
 	}
+	printf("5\n");
+	
+	int clk1 = clock();
+    printf("First time tick = %d\n", clk1);
+    int *all = HW_allocate(240);
+	int clk2 = clock();
+    printf("\nSecond time tick = %d\n", clk2);
+	printf("Tick: %d\n",clk2-clk1);
+	
 	printf("%s: \n",SeqName);
   	printf("allocate done in %d clock cycle\n",*allocate_counter);
   	printf("free done in %d clock cycle\n ",*free_counter);
