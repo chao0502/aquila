@@ -126,8 +126,8 @@ InstTable::InstTable()
 }
 
 
-const InstEntry&
-InstTable::getEntry(InstId id) const
+InstEntry&
+InstTable::getEntry(InstId id)
 {
   if (size_t(id) >= instVec_.size())
     return instVec_.front();
@@ -135,8 +135,8 @@ InstTable::getEntry(InstId id) const
 }
 
 
-const InstEntry&
-InstTable::getEntry(const std::string& name) const
+InstEntry&
+InstTable::getEntry(const std::string& name)
 {
   const auto iter = instMap_.find(name);
   if (iter == instMap_.end())

@@ -126,35 +126,45 @@ int HW_realloc(int addr, int size){
 
 int main( int argc, char *argv[] )
 {
-	printf("1\n");
 	int i;
 	unsigned char ptr[memory_size];//32MB
-	printf("2\n");
 	memset(ptr,memory_size,0);
-	printf("3\n");
 	*heap_start_address = &ptr[0];
-	printf("4\n");
+
+	int clk1 = clock();
 	for(i=0;i<seq_num;i++)
 	{
-		//if(i % 100 == 0 && i > 0)
-			//printf("loop\n");
 		if(mem_ops[i]==1){
 			allocate_array[alloc_idx[i]]=HW_allocate(alloc_size[i]);
-			//printf("%d:%x\n",i,allocate_array[alloc_idx[i]]);
 		}
 		else
 			HW_free(allocate_array[alloc_idx[i]]);
 		dummy_loop();
 	}
-	printf("5\n");
-	
-	int clk1 = clock();
-    printf("First time tick = %d\n", clk1);
-    int *all = HW_allocate(240);
 	int clk2 = clock();
-    printf("\nSecond time tick = %d\n", clk2);
-	printf("Tick: %d\n",clk2-clk1);
+	printf("Malloc Tick: %d\n",clk2-clk1);
+	/*
+	int clk1 = clock();
+    //printf("First time tick = %d\n", clk1);
+    char *all = (char*)HW_allocate(240000);
+	char *all2 = (char*)HW_allocate(240000);
+	char *all3 = (char*)HW_allocate(240000);
+	int clk2 = clock();
+    //printf("\nSecond time tick = %d\n", clk2);
+	printf("Malloc Tick: %d\n",clk2-clk1);
 	
+	all = "fuck you!!";
+	printf("%s\n",all);
+
+	clk1 = clock();
+    //printf("First time tick = %d\n", clk1);
+    HW_free(all);
+	HW_free(all2);
+	HW_free(all3);
+	clk2 = clock();
+    //printf("\nSecond time tick = %d\n", clk2);
+	printf("Free Tick: %d\n",clk2-clk1);
+*/
 	printf("%s: \n",SeqName);
   	printf("allocate done in %d clock cycle\n",*allocate_counter);
   	printf("free done in %d clock cycle\n ",*free_counter);

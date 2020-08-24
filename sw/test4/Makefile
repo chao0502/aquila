@@ -25,6 +25,7 @@ OCFLAGS = -O binary
 ODFLAGS = -d
 
 PROJ = test
+#OBJS = vm.o handle_trap.o test.o $(LIBC)/stdio.o $(LIBC)/stdlib.o $(LIBC)/heap_4.o $(LIBC)/string.o $(LIBC)/time.o $(LIBC)/uart.o
 OBJS = vm.o handle_trap.o test.o $(LIBC)/stdio.o $(LIBC)/stdlib.o $(LIBC)/heap_4.o $(LIBC)/string.o $(LIBC)/time.o $(LIBC)/uart.o
 BOOT_V = boot-v.o
 BOOT_P = boot-p.o

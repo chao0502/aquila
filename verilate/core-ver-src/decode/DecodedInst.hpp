@@ -160,18 +160,18 @@ namespace WdRiscv
     /// currently stored in register x. The value of a non-existing
     /// operand is zero. Note that the association is only in this
     /// object and that no register value is changed by this method.
-    template <typename URV>
-    void fetchOperands(const Hart<URV>& hart);
+    /*template <typename URV>
+    void fetchOperands(const Hart<URV>& hart);*/
 
     /// Associated a value with the ith operand. This has no effect if
     /// i is out of bounds or if the ith operand is an immediate. Note
     /// that the association is only in this object and that no
     /// register value is changed by this method.
-    void setIthOperandValue(unsigned i, uint64_t value);
+    //void setIthOperandValue(unsigned i, uint64_t value);
 
     /// Return value associated with ith operand.
-    uint64_t ithOperandValue(unsigned i) const
-    { return i < 4? values_[i] : 0; }
+    /*uint64_t ithOperandValue(unsigned i) const
+    { return i < 4? values_[i] : 0; }*/
 
   protected:
 

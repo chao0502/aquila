@@ -1,10 +1,10 @@
-#include "Hart.hpp"
+//#include "Hart.hpp"
 #include "DecodedInst.hpp"
 
 
 using namespace WdRiscv;
 
-
+/*
 uint32_t
 DecodedInst::ithOperand(unsigned i) const
 {
@@ -20,9 +20,9 @@ int32_t
 DecodedInst::ithOperandAsInt(unsigned i) const
 {
   return ithOperand(i);
-}
+}*/
 
-
+/*
 template <typename URV>
 void
 DecodedInst::fetchOperands(const Hart<URV>& hart)
@@ -75,8 +75,8 @@ DecodedInst::fetchOperands(const Hart<uint32_t>&);
 template<>
 void
 DecodedInst::fetchOperands(const Hart<uint64_t>&);
-
-
+*/
+/*
 void
 DecodedInst::setIthOperandValue(unsigned i, uint64_t value)
 {
@@ -96,7 +96,7 @@ DecodedInst::setIthOperandValue(unsigned i, uint64_t value)
     case OperandType::None:
       break;
     }
-}
+}*/
 
 
 

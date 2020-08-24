@@ -291,11 +291,11 @@ namespace WdRiscv
 
     // Return the info corresponding to the given id or the info of the
     // illegal instruction if no such id.
-    const InstEntry& getEntry(InstId) const;
+    InstEntry& getEntry(InstId);
 
     // Return the info corresponding to the given name or the info of
     // the illegal instruction if no such instruction.
-    const InstEntry& getEntry(const std::string& name) const;
+    InstEntry& getEntry(const std::string& name);
 
     // Return true if given id is present in the table.
     bool hasInfo(InstId) const;
