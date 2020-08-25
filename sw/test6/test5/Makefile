@@ -23,9 +23,9 @@ LD_SOFT_FP = -L$(RISCV)/lib/gcc/riscv32-unknown-elf/8.2.0 -lgcc
 
 OCFLAGS = -O binary
 ODFLAGS = -d
-#$(LIBC)/heap_4.o
+#$(LIBC)/heap_4.o 
 PROJ = test
-OBJS = vm.o handle_trap.o test.o $(LIBC)/stdio.o $(LIBC)/stdlib.o  $(LIBC)/string.o $(LIBC)/time.o $(LIBC)/uart.o $(LIBC)/mallocr2.o
+OBJS = vm.o handle_trap.o test.o $(LIBC)/stdio.o $(LIBC)/stdlib.o $(LIBC)/string.o $(LIBC)/time.o $(LIBC)/uart.o $(LIBC)/mallocr2.o
 BOOT_V = boot-v.o
 BOOT_P = boot-p.o
 

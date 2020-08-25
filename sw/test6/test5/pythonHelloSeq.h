@@ -1,6 +1,6 @@
 #define array_num 321
 #define SeqName "pythonHelloSeq"
-long allocate_array[array_num]={0};
+void* allocate_array[array_num]={0};
 #define seq_num 5940
 // malloc:1 free:0
 int mem_ops[seq_num]= {

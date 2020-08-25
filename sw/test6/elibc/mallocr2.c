@@ -1,7 +1,10 @@
 #include <mallocr2.h>
 #include <stdio.h>
-//#include <wchar.h>
-//#include <wctype.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 /*
   Type declarations
 */
@@ -26,15 +29,15 @@ typedef struct malloc_chunk* mchunkptr;
 
 
 void *sbrk(size_t incr) {
-  extern uint8_t __heap_base__;
-  extern uint8_t __heap_end__;
-  static uint8_t *p = &__heap_base__;
+  extern uint8_t __heap_start;
+  extern uint8_t __heap_size;
+  static uint8_t *p = &__heap_start;
   static uint8_t *newp;
   
   newp = p + incr;
-  if (newp > &__heap_end__) {
-    errno = ENOMEM;
-    return (void *)-1;
+  if (newp > &__heap_start + __heap_size) {
+    /*errno = ENOMEM;
+    return (void *)-1;*/
   }
   return p = newp;
 }
@@ -765,7 +768,7 @@ static mchunkptr mmap_chunk(size) size_t size;
     fd = open("/dev/zero", O_RDWR);
     if(fd < 0) return 0;
   }
-  p = (mchunkptr)mmap(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+  //p = (mchunkptr)mmap(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
 #endif
 
   if(p == (mchunkptr)-1) return 0;
@@ -816,10 +819,10 @@ STATIC void munmap_chunk(p) mchunkptr p;
   n_mmaps--;
   mmapped_mem -= (size + p->prev_size);
 
-  ret = munmap((char *)p - p->prev_size, size + p->prev_size);
+  //ret = munmap((char *)p - p->prev_size, size + p->prev_size);
 
   /* munmap returns non-zero on failure */
-  assert(ret == 0);
+  //assert(ret == 0);
 }
 
 #else /* ! DEFINE_FREE */
@@ -1087,10 +1090,9 @@ Void_t* mALLOc(RARG bytes) RDECL size_t bytes;
 {
 #ifdef MALLOC_PROVIDED
 
-  return malloc (bytes); // Make sure that the pointer returned by malloc is returned back.
+  return malloc (bytes); /* Make sure that the pointer returned by malloc is returned back.*/
 
 #else
-
   mchunkptr victim;                  /* inspected/selected chunk */
   INTERNAL_SIZE_T victim_size;       /* its size */
   int       idx;                     /* index for bin traversal */
@@ -1109,7 +1111,7 @@ Void_t* mALLOc(RARG bytes) RDECL size_t bytes;
   /* Check for overflow and just fail, if so. */
   if (nb > INT_MAX || nb < bytes)
   {
-    RERRNO = ENOMEM;
+    /*RERRNO = ENOMEM;*/
     return 0;
   }
 
@@ -1575,7 +1577,7 @@ Void_t* rEALLOc(RARG oldmem, bytes) RDECL Void_t* oldmem; size_t bytes;
   /* Check for overflow and just fail, if so. */
   if (nb > INT_MAX || nb < bytes)
   {
-    RERRNO = ENOMEM;
+    /*RERRNO = ENOMEM;*/
     return 0;
   }
 
@@ -1811,7 +1813,7 @@ Void_t* mEMALIGn(RARG alignment, bytes) RDECL size_t alignment; size_t bytes;
   /* Check for overflow. */
   if (nb > INT_MAX || nb < bytes)
   {
-    RERRNO = ENOMEM;
+    /*RERRNO = ENOMEM;*/
     return 0;
   }
 
@@ -2245,7 +2247,7 @@ void malloc_stats(RONEARG)
 #else
 void malloc_stats(RONEARG) RDECL
 #endif
-{
+{/*
   unsigned long local_max_total_mem;
   int local_sbrked_mem;
   struct mallinfo local_mallinfo;
@@ -2289,7 +2291,7 @@ void malloc_stats(RONEARG) RDECL
 #if HAVE_MMAP
   fprintf(fp, "max mmap regions = %10u\n", 
 	  (unsigned int)local_max_n_mmaps);
-#endif
+#endif*/
 }
 
 #endif /* DEFINE_MALLOC_STATS */

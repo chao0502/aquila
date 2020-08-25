@@ -93,6 +93,9 @@ int main(void)
 
     int i;
 
+    /*char *s = mALLOc(alloc_size[i]);
+    s[10] = 'a';
+    printf("%c\n",s[10]);*/
     int clk1 = clock();
 	for(i=0;i<seq_num;i++)
 	{
@@ -132,7 +135,7 @@ int main(void)
     got_isr = 0;
     while (! got_isr)
     {
-        /* busy waiting */
+         busy waiting */
     //}
     printf("Test finished.\n");
     return 0;

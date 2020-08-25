@@ -507,7 +507,7 @@ extern void __malloc_unlock();
 #if (__STD_C || defined(HAVE_MEMCPY))
 
 #if __STD_C
-void* memset(void*, int, size_t);
+//void* memset(void*, int, size_t);
 //void* memcpy(void*, const void*, size_t);
 //void* memmove(void*, const void*, size_t);
 #else
