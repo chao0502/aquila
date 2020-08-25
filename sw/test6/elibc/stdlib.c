@@ -55,16 +55,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+/*
 void *malloc(size_t n)
 {
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
+     This function is derived from FreeRTOS_v8 heap_4.c. 
     return pvPortMalloc(n);
 }
 
 void free(void *mptr)
 {
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
+     This function is derived from FreeRTOS_v8 heap_4.c. 
     vPortFree(mptr);
 }
 
@@ -74,7 +74,7 @@ void *calloc(size_t n, size_t size)
     mptr = malloc(n*size);
     memset(mptr, 0, n*size);
     return mptr;
-}
+}*/
 
 int atoi(char *s)
 {

@@ -1,11 +1,10 @@
 // =============================================================================
-//  Program : stdlib.c
+//  Program : stdio.h
 //  Author  : Chun-Jen Tsai
 //  Date    : Dec/09/2019
 // -----------------------------------------------------------------------------
 //  Description:
-//  This is the minimal stdlib library for aquila.  The malloc()/free() functions
-//  are derived from the FreeRTOS project.
+//  This is the minimal string library for aquila.
 // -----------------------------------------------------------------------------
 //  Revision information:
 //
@@ -52,80 +51,26 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 // =============================================================================
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef __STDIO__H__
+#define __STDIO__H__
 
-void *malloc(size_t n)
-{
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
-    return pvPortMalloc(n);
-}
+#include <stdarg.h>
+#include <stddef.h>
 
-void free(void *mptr)
-{
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
-    vPortFree(mptr);
-}
+#define EOF -1
 
-void *calloc(size_t n, size_t size)
-{
-    void *mptr;
-    mptr = malloc(n*size);
-    memset(mptr, 0, n*size);
-    return mptr;
-}
+typedef struct {  /* dummy type for now */
+	int fd;
+	int ostat;
+} FILE;
 
-int atoi(char *s)
-{
-    int value, sign;
+extern FILE *stdin;
+extern FILE *stdout;
+extern FILE *stderr;
 
-    /* skip leading while characters */
-    while (*s == ' ' || *s == '\t') s++;
-    if (*s == '-') sign = -1, s++;
-    else sign = 1;
-    if (*s >= '0' && *s <= '9') value = (*s - '0');
-    else return 0;
-    s++;
-    while (*s != 0)
-    {
-       if (*s >= '0' && *s <= '9')
-       {
-           value = value * 10 + (*s - '0');
-           s++;
-       }
-       else return 0;
-    }
-
-    return value * sign;
-}
-
-int abs(int n)
-{
-    int j;
-
-    if (n >= 0) j = n; else j = -n;
-
-	return j;
-}
-
-void exit(int status)
-{
-	printf("\nProgram exit with a status code %d\n", status);
-    printf("\n-----------------------------------------------------------");
-    printf("------------\nAquila execution finished.\n");
-    printf("Press <reset> on the FPGA board to reboot the cpu ...\n\n");
-    while (1);
-}
-
-static int rand_seed = 27182;
-
-void srand(unsigned int seed)
-{
-    rand_seed = (long) seed;
-}
-
-int rand(void)
-{
-    return(((rand_seed = rand_seed * 214013L + 2531011L) >> 16) & 0x7fff);
-}
+int printf(char *fmt, ...);
+int fputs(const char *s, FILE *fp);
+int putchar(int c);
+int getchar(void);
+char *fgets(char *s, int n, FILE *fp);
+#endif

@@ -1,5 +1,5 @@
 // =============================================================================
-//  Program : stdlib.c
+//  Program : stdlib.h
 //  Author  : Chun-Jen Tsai
 //  Date    : Dec/09/2019
 // -----------------------------------------------------------------------------
@@ -52,80 +52,23 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 // =============================================================================
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef __STDLIB__H__
+#define __STDLIB__H__
+#include <stddef.h>
 
-void *malloc(size_t n)
-{
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
-    return pvPortMalloc(n);
-}
+void *pvPortMalloc( size_t xWantedSize ); /* from FreeRTOS v8 */
+void vPortFree( void *pv );               /* from FreeRTOS v8 */
+//void *malloc(size_t n);
+//void free(void *m);
+void *calloc(size_t n, size_t sz);
 
-void free(void *mptr)
-{
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
-    vPortFree(mptr);
-}
+int atoi(char *s);
+int abs(int n);
 
-void *calloc(size_t n, size_t size)
-{
-    void *mptr;
-    mptr = malloc(n*size);
-    memset(mptr, 0, n*size);
-    return mptr;
-}
+void exit(int status);
 
-int atoi(char *s)
-{
-    int value, sign;
+#define RAND_MAX 0x7FFF
 
-    /* skip leading while characters */
-    while (*s == ' ' || *s == '\t') s++;
-    if (*s == '-') sign = -1, s++;
-    else sign = 1;
-    if (*s >= '0' && *s <= '9') value = (*s - '0');
-    else return 0;
-    s++;
-    while (*s != 0)
-    {
-       if (*s >= '0' && *s <= '9')
-       {
-           value = value * 10 + (*s - '0');
-           s++;
-       }
-       else return 0;
-    }
-
-    return value * sign;
-}
-
-int abs(int n)
-{
-    int j;
-
-    if (n >= 0) j = n; else j = -n;
-
-	return j;
-}
-
-void exit(int status)
-{
-	printf("\nProgram exit with a status code %d\n", status);
-    printf("\n-----------------------------------------------------------");
-    printf("------------\nAquila execution finished.\n");
-    printf("Press <reset> on the FPGA board to reboot the cpu ...\n\n");
-    while (1);
-}
-
-static int rand_seed = 27182;
-
-void srand(unsigned int seed)
-{
-    rand_seed = (long) seed;
-}
-
-int rand(void)
-{
-    return(((rand_seed = rand_seed * 214013L + 2531011L) >> 16) & 0x7fff);
-}
+void srand(unsigned int seed);
+int rand(void);
+#endif

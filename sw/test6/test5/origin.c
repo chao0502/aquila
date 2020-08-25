@@ -56,18 +56,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <mallocr2.h>
 #include "uart.h"
-#include "pythonHelloSeq.h"
+#include "handle_trap.h"
 
-//void malloc_test(int nwords);
-//void timer_isr_test();
-//void sleep(int msec);
+extern unsigned int __heap_start;
+extern unsigned int __heap_size;
 
-//volatile int got_isr;
+unsigned int heap_start = (unsigned int)&__heap_start;
+unsigned int heap_size  = (unsigned int)&__heap_size;
 
+void malloc_test(int nwords);
+void timer_isr_test();
+void sleep(int msec);
 
+// volatile int got_timmer_isr;
+volatile int malloc_succeed;
 
+void volatile set_timer_period(unsigned long msec)
+{
+    unsigned long volatile *clint_mem = (unsigned long *) 0xF0000000;
+    clint_mem[3] = 0;
+    clint_mem[2] = msec;
+    clint_mem[0] = clint_mem[1] = 0;
+}
+
+void volatile enable_core_timer()
+{
+    asm volatile ("addi t0, zero, 128");
+    asm volatile ("csrw mie, t0");
+}
 
 int main(void)
 {
@@ -91,53 +108,26 @@ int main(void)
     printf("Hello, Aquila %.1f!\n", ver);
     printf("The address of 'ver' is 0x%X\n\n", (unsigned) &ver);
 
-    int i;
+    printf("First time tick = %d\n\n", clock());
+    malloc_test(4096);
+    
+    printf("\nSecond time tick = %d\n\n", clock());
 
-    int clk1 = clock();
-	for(i=0;i<seq_num;i++)
-	{
-		if(mem_ops[i]==1){
-			allocate_array[alloc_idx[i]]=mALLOc(alloc_size[i]);
-		}
-		else
-			fREe(allocate_array[alloc_idx[i]]);
-		dummy_loop();
-	}
-	int clk2 = clock();
-	printf("Malloc Tick: %d\n",clk2-clk1);
-/*
-	int clk1 = clock();
-    //printf("First time tick = %d\n", clk1);
-    char *all = (char*)malloc(240000);
-    char *all2 = (char*)malloc(240000);
-    char *all3 = (char*)malloc(240000);
-	int clk2 = clock();
-    //printf("\nSecond time tick = %d\n", clk2);
-	printf("Malloc Tick: %d\n",clk2-clk1);
-	
-    all = "fuck you!!";
-	printf("%s\n",all);
-	
-	clk1 = clock();
-    //printf("First time tick = %d\n", clk1);
-    free(all);
-    free(all2);
-    free(all3);
-	clk2 = clock();
-    //printf("\nSecond time tick = %d\n", clk2);
-	printf("Free Tick: %d\n",clk2-clk1);
-*/
-    /*printf("Waiting for timer ISR ...");
+    //timer_isr_test();
+    printf("Waiting for timer ISR ...\n");
 
-    got_isr = 0;
-    while (! got_isr)
+    
+    while (! got_timmer_isr)
     {
         /* busy waiting */
-    //}
+    }
+    printf("ISR Test finished.\n");
+
+
     printf("Test finished.\n");
     return 0;
 }
-/*
+
 void malloc_test(int nwords)
 {
     int *buf, idx;
@@ -149,16 +139,49 @@ void malloc_test(int nwords)
         exit(-1);
     }
     printf("The buffer address is: 0x%X\n", (unsigned) buf);
-    for (idx = 0; idx < nwords; idx++) buf[idx] = idx;
-    for (idx = 0; idx < 10; idx++)
-    {
-        printf("Addr 0x%X, buf[%d] = %d\n", (unsigned) &(buf[idx]), idx, buf[idx]);
+
+    int buf_addr = (unsigned int) buf;
+
+    if(buf_addr < heap_start || buf_addr > heap_start + heap_size){
+        printf("The heap start address is:0x%X\n", heap_start);
+        printf("The heap size  address is:0x%X\n", heap_size);
+        printf("Malloc test Error!!\n\n");
+        malloc_succeed = 0;
+    } else {
+        malloc_succeed = 1;
+        for (idx = 0; idx < nwords; idx++) buf[idx] = idx;
+        for (idx = 0; idx < 10; idx++)
+        {
+            printf("Addr 0x%X, buf[%d] = %d\n", (unsigned) &(buf[idx]), idx, buf[idx]);
+        }
+        printf("\n...\n");
+        for (idx = 10; idx > 0; idx--)
+        {
+            printf("Addr 0x%X, buf[%d] = %d\n",(unsigned) &(buf[idx]), nwords-idx, buf[nwords-idx]);
+        }
+        free(buf);
+        printf("Buffer freed.\n");
     }
-    printf("\n...\n");
-    for (idx = 10; idx > 0; idx--)
-    {
-        printf("Addr 0x%X, buf[%d] = %d\n",(unsigned) &(buf[idx]), nwords-idx, buf[nwords-idx]);
-    }
-    free(buf);
-    printf("Buffer freed.\n");
-}*/
+
+    
+}
+
+void timer_isr_test()
+{
+    // char str[10];
+    int n;
+
+    printf("Timer ISR test:1\n");
+    n = 1;
+
+    // Set the ISR address.
+    got_timmer_isr = 0;
+
+    // Set the interrupt duration.
+    set_timer_period(n);
+    printf("set_timer_period done\n");
+
+    // Enable the timer interrupts.
+    enable_core_timer();
+    printf("enable_core_timer done\n");
+}

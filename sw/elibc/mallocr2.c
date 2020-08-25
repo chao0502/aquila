@@ -1,8 +1,18 @@
-#include <malloc.h>
-
+#include <mallocr2.h>
+#include <stdio.h>
+//#include <wchar.h>
+//#include <wctype.h>
 /*
   Type declarations
 */
+
+#ifndef INTERNAL_SIZE_T
+#define INTERNAL_SIZE_T size_t
+#endif
+
+#define	PROT_READ	0x01	/* pages can be read */
+#define	PROT_WRITE	0x02	/* pages can be written */
+#define MAP_PRIVATE     0x002
 
 struct malloc_chunk
 {
@@ -14,6 +24,20 @@ struct malloc_chunk
 
 typedef struct malloc_chunk* mchunkptr;
 
+
+void *sbrk(size_t incr) {
+  extern uint8_t __heap_base__;
+  extern uint8_t __heap_end__;
+  static uint8_t *p = &__heap_base__;
+  static uint8_t *newp;
+  
+  newp = p + incr;
+  if (newp > &__heap_end__) {
+    errno = ENOMEM;
+    return (void *)-1;
+  }
+  return p = newp;
+}
 /*
 
    malloc_chunk details:
@@ -866,6 +890,7 @@ static mchunkptr mremap_chunk(p, new_size) mchunkptr p; size_t new_size;
   Extend the top-most chunk by obtaining memory from system.
   Main interface to sbrk (but see also malloc_trim).
 */
+
 
 #if __STD_C
 static void malloc_extend_top(RARG INTERNAL_SIZE_T nb)

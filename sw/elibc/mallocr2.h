@@ -508,8 +508,8 @@ extern void __malloc_unlock();
 
 #if __STD_C
 void* memset(void*, int, size_t);
-void* memcpy(void*, const void*, size_t);
-void* memmove(void*, const void*, size_t);
+//void* memcpy(void*, const void*, size_t);
+//void* memmove(void*, const void*, size_t);
 #else
 Void_t* memset();
 Void_t* memcpy();
@@ -626,7 +626,7 @@ do {                                                                          \
 
 #if HAVE_MMAP
 
-#include <unistd.h>
+//#include <unistd.h>
 #include <fcntl.h>
 //#include <sys/mman.h>
 
@@ -645,7 +645,7 @@ do {                                                                          \
 */
 
 #ifndef LACKS_UNISTD_H
-#  include <unistd.h>
+//#  include <unistd.h>
 #endif
 
 #ifndef malloc_getpagesize
@@ -951,11 +951,11 @@ Void_t *(*__morecore)() = __default_morecore_init;
 #else /* INTERNAL_LINUX_C_LIB */
 
 #ifndef INTERNAL_NEWLIB
-#if __STD_C
+/*#if __STD_C
 extern Void_t*     sbrk(ptrdiff_t);
 #else
 extern Void_t*     sbrk();
-#endif
+#endif*/
 #endif
 
 #ifndef MORECORE
@@ -1041,6 +1041,8 @@ extern Void_t*     sbrk();
 /* Public routines */
 
 #if __STD_C
+
+void *sbrk(size_t incr);
 
 Void_t* mALLOc(RARG size_t);
 void    fREe(RARG Void_t*);

@@ -1,11 +1,10 @@
 // =============================================================================
-//  Program : stdlib.c
+//  Program : string.c
 //  Author  : Chun-Jen Tsai
 //  Date    : Dec/09/2019
 // -----------------------------------------------------------------------------
 //  Description:
-//  This is the minimal stdlib library for aquila.  The malloc()/free() functions
-//  are derived from the FreeRTOS project.
+//  This is the minimal string library for aquila.
 // -----------------------------------------------------------------------------
 //  Revision information:
 //
@@ -53,79 +52,137 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 // =============================================================================
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-void *malloc(size_t n)
+void *memcpy(void *d, void *s, size_t n)
 {
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
-    return pvPortMalloc(n);
+    unsigned char *dst = (unsigned char *) d;
+    unsigned char *src = (unsigned char *) s;
+
+    for (int idx = 0; idx < n; idx++) *(dst++) = *(src++);
+    return d;
 }
 
-void free(void *mptr)
+void *memmove(void *d, void *s, size_t n)
 {
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
-    vPortFree(mptr);
-}
+    unsigned char *dst = (unsigned char *) d;
+    unsigned char *src = (unsigned char *) s;
 
-void *calloc(size_t n, size_t size)
-{
-    void *mptr;
-    mptr = malloc(n*size);
-    memset(mptr, 0, n*size);
-    return mptr;
-}
-
-int atoi(char *s)
-{
-    int value, sign;
-
-    /* skip leading while characters */
-    while (*s == ' ' || *s == '\t') s++;
-    if (*s == '-') sign = -1, s++;
-    else sign = 1;
-    if (*s >= '0' && *s <= '9') value = (*s - '0');
-    else return 0;
-    s++;
-    while (*s != 0)
+    if ((unsigned) d >= (unsigned) s &&
+        (unsigned) d <= (unsigned) s + n)
     {
-       if (*s >= '0' && *s <= '9')
-       {
-           value = value * 10 + (*s - '0');
-           s++;
-       }
-       else return 0;
+        for (int idx = n - 1; idx >= 0; idx--) dst[idx] = src[idx];
+    }
+    else
+    {
+        for (int idx = 0; idx < n; idx++) *(dst++) = *(src++);
     }
 
-    return value * sign;
+    return d;
 }
 
-int abs(int n)
+void *memset(void *d, int v, size_t n)
 {
-    int j;
+    unsigned char *dst = (unsigned char *) d;
 
-    if (n >= 0) j = n; else j = -n;
-
-	return j;
+    for (int idx = 0; idx < n; idx++) *(dst++) = (unsigned char) v;
+    return d;
 }
 
-void exit(int status)
+long strlen(char *s)
 {
-	printf("\nProgram exit with a status code %d\n", status);
-    printf("\n-----------------------------------------------------------");
-    printf("------------\nAquila execution finished.\n");
-    printf("Press <reset> on the FPGA board to reboot the cpu ...\n\n");
-    while (1);
+    long n = 0;
+
+    while (*s++) n++;
+    return n;
 }
 
-static int rand_seed = 27182;
-
-void srand(unsigned int seed)
+char *strcpy(char *dst, char *src)
 {
-    rand_seed = (long) seed;
+    char *tmp = dst;
+
+    while (*src) *(tmp++) = *(src++);
+    *tmp = 0;
+    return dst;
 }
 
-int rand(void)
+char *strncpy(char *dst, char *src, size_t n)
 {
-    return(((rand_seed = rand_seed * 214013L + 2531011L) >> 16) & 0x7fff);
+    char *tmp = dst;
+
+    while (*src && n) *(tmp++) = *(src++), n--;
+    while (n--) *(tmp++) = 0;
+    return dst;
+}
+
+char *strcat(char *dst, char *src)
+{
+    char *tmp = dst;
+
+    while (*tmp) tmp++;
+    while (*src) *(tmp++) = *(src++);
+    *tmp = 0;
+    return dst;
+}
+
+char *strncat(char *dst, char *src, size_t n)
+{
+    char *tmp = dst;
+
+    while (*tmp) tmp++;
+    while (*src && n) *(tmp++) = *(src++), n--;
+    *tmp = 0;
+    return dst;
+}
+
+int  strcmp(char *s1, char *s2)
+{
+    int value;
+ 
+    s1--, s2--;
+    do
+    {
+        s1++, s2++;
+        if (*s1 == *s2)
+        {
+            value = 0;
+        }
+        else if (*s1 < *s2)
+        {
+            value = -1;
+            break;
+        }
+        else
+        {
+            value = 1;
+            break;
+        }
+    } while (*s1 != 0 && *s2 != 0);
+    return value;
+}
+
+int  strncmp(char *s1, char *s2, size_t n)
+{
+    int value;
+
+    s1--, s2--;
+    do
+    {
+        s1++, s2++;
+        if (*s1 == *s2)
+        {
+            value = 0;
+        }
+        else if (*s1 < *s2)
+        {
+            value = -1;
+            break;
+        }
+        else
+        {
+            value = 1;
+            break;
+        }
+    } while (--n && *s1 != 0 && *s2 != 0);
+    return value;
 }

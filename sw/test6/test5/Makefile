@@ -13,7 +13,7 @@ LD = $(CCPATH)/$(CROSS)-ld
 OC = $(CCPATH)/$(CROSS)-objcopy
 OD = $(CCPATH)/$(CROSS)-objdump
 
-LIBC = ../../sw/elibc
+LIBC = ../elibc
 
 CCFLAGS = -Wall -I$(LIBC) -fomit-frame-pointer -fno-builtin -march=rv32im -mstrict-align -mabi=ilp32
 ASFLAGS = -march=rv32im

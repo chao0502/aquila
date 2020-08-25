@@ -1,15 +1,18 @@
+/*
 // =============================================================================
-//  Program : stdlib.c
+//  Program : test.ld
 //  Author  : Chun-Jen Tsai
 //  Date    : Dec/09/2019
-// -----------------------------------------------------------------------------
-//  Description:
-//  This is the minimal stdlib library for aquila.  The malloc()/free() functions
-//  are derived from the FreeRTOS project.
 // -----------------------------------------------------------------------------
 //  Revision information:
 //
 //  None.
+// -----------------------------------------------------------------------------
+//  Description:
+//  This is the boot code for Aquila SoC.  Upon reset, the boot code waiting
+//  for a program to be transferred from the UART port (using [File] -> [Send file]
+//  menu command of TeraTerm). Then the program will be loaded to 0x9000_0000,
+//  and executed. The processor will be halted when the execution is finished.
 // -----------------------------------------------------------------------------
 //  License information:
 //
@@ -52,80 +55,58 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 // =============================================================================
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+must start from 0x80000000 due to aquila hard code /
+*/
 
-void *malloc(size_t n)
+__heap_start = 0x80220000;
+__heap_size  = 0x00001000;
+__stack_top  = 0x80230000;
+__stack_size = 0x00001000;
+__stack_start = __stack_top - __stack_size;
+
+MEMORY
 {
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
-    return pvPortMalloc(n);
+    code_ram   (rx!rw) : ORIGIN = 0x80000000, LENGTH = 0x00008000
+    data_ram   (rw!x)  : ORIGIN = 0x8000A000, LENGTH = 0x00210000
+    heap_ram   (rw!x)  : ORIGIN = __heap_start, LENGTH = __heap_size
+    stack_ram  (rw!x)  : ORIGIN = __stack_start, LENGTH = __stack_size
+    IO       (rw!x)  : ORIGIN = 0xC0000000, LENGTH = 0x00000010
+    TIMER    (rw!x)  : ORIGIN = 0xF0000000, LENGTH = 0x00000020
 }
 
-void free(void *mptr)
+SECTIONS
 {
-    //This function is derived from FreeRTOS_v8 heap_4.c. 
-    vPortFree(mptr);
-}
-
-void *calloc(size_t n, size_t size)
-{
-    void *mptr;
-    mptr = malloc(n*size);
-    memset(mptr, 0, n*size);
-    return mptr;
-}
-
-int atoi(char *s)
-{
-    int value, sign;
-
-    /* skip leading while characters */
-    while (*s == ' ' || *s == '\t') s++;
-    if (*s == '-') sign = -1, s++;
-    else sign = 1;
-    if (*s >= '0' && *s <= '9') value = (*s - '0');
-    else return 0;
-    s++;
-    while (*s != 0)
+    .text :
     {
-       if (*s >= '0' && *s <= '9')
-       {
-           value = value * 10 + (*s - '0');
-           s++;
-       }
-       else return 0;
-    }
+        boot-v.o(.text)
+        *(.text)
 
-    return value * sign;
-}
+    } > code_ram
 
-int abs(int n)
-{
-    int j;
+    .data :
+    {
+        *(.data)
+        *(.bss)
+        *(.rodata*)
 
-    if (n >= 0) j = n; else j = -n;
+    } > data_ram
 
-	return j;
-}
+    .heap :
+    {
+        . = ALIGN(4);
+        PROVIDE ( end = . );
+        _sheap = .;
+        . = . + __heap_size;
+        . = ALIGN(4);
+        _eheap = .;
+    } > heap_ram
 
-void exit(int status)
-{
-	printf("\nProgram exit with a status code %d\n", status);
-    printf("\n-----------------------------------------------------------");
-    printf("------------\nAquila execution finished.\n");
-    printf("Press <reset> on the FPGA board to reboot the cpu ...\n\n");
-    while (1);
-}
-
-static int rand_seed = 27182;
-
-void srand(unsigned int seed)
-{
-    rand_seed = (long) seed;
-}
-
-int rand(void)
-{
-    return(((rand_seed = rand_seed * 214013L + 2531011L) >> 16) & 0x7fff);
+    .stack :
+    {
+        . = ALIGN(4);
+        _estack = .;
+        . = . + __stack_size;
+        . = ALIGN(4);
+        _sstack = .;
+    } > stack_ram
 }
