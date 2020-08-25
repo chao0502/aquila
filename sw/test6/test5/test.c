@@ -93,9 +93,9 @@ int main(void)
 
     int i;
 
-    /*char *s = mALLOc(alloc_size[i]);
-    s[10] = 'a';
-    printf("%c\n",s[10]);*/
+    char *s = mALLOc(100);
+    s = "123123123\n";
+    printf("%s\n",s);
     int clk1 = clock();
 	for(i=0;i<seq_num;i++)
 	{
