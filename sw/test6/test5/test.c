@@ -104,7 +104,7 @@ int main(void)
 		}
 		else
 			fREe(allocate_array[alloc_idx[i]]);
-		dummy_loop();
+		//dummy_loop();
 	}
 	int clk2 = clock();
 	printf("Malloc Tick: %d\n",clk2-clk1);
